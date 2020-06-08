@@ -1,8 +1,8 @@
-document.addEventListener('DOMContentLoaded', () => {
-  const grid = document.querySelector('.grid');
-  let squares = Array.from(document.querySelectorAll('.grid div'));
-  const scoreDisplay = document.querySelector('#score');
-  const startBtn = document.querySelector('#start-button');
+document.addEventListener("DOMContentLoaded", () => {
+  const grid = document.querySelector(".grid");
+  let squares = Array.from(document.querySelectorAll(".grid div"));
+  const scoreDisplay = document.querySelector("#score");
+  const startBtn = document.querySelector("#start-button");
   const width = 10;
   const height = 10;
 
@@ -68,40 +68,72 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Draw the first rotation of a random Tetromino
   function draw() {
-    current.forEach((index) => {
-      squares[currentPosition + index].classList.add('tetromino');
+    current.forEach(index => {
+      squares[currentPosition + index].classList.add("tetromino");
+      // console.log(currentPosition, index);
     });
   }
-  draw();
 
   // Undraw Tetromino
   function undraw() {
-    current.forEach((index) => {
-      squares[currentPosition + index].classList.remove('tetromino');
+    current.forEach(index => {
+      squares[currentPosition + index].classList.remove("tetromino");
     });
   }
 
   // Make the teromino move down every second
   timerId = setInterval(moveDown, 1000);
 
+  // Keycode Events
+  function control(e) {
+    if (e.keyCode === 37) {
+      moveLeft();
+    }
+  }
+  document.addEventListener("keyup", control);
+
   // Move down function
   function moveDown() {
     undraw();
     currentPosition += height;
     draw();
+    freeze();
   }
-
   // Freeze function
   function freeze() {
     if (
-      current.some(index => squares[currentPosition + index + width].classList.contains'taken'))) {
-      current.forEach(index => squares[currentPosition + index].classList.add('taken')) {
-        // Start a new Tetromino falling
-        random = Math.floor(Math.random() * theTetrominoes.length)
-        current = theTetrominoes[random][currentRotation]
-        currentPosition = 4
-        draw()
-      }
+      current.some(index =>
+        squares[currentPosition + index + width].classList.contains("taken")
+      )
+    ) {
+      // console.log(index);
+      current.forEach(index =>
+        squares[currentPosition + index].classList.add("taken")
+      );
+      // Start a new Tetromino falling
+      random = Math.floor(Math.random() * theTetrominoes.length);
+      current = theTetrominoes[random][currentRotation];
+      currentPosition = 4;
+      draw();
     }
+  }
+
+  // Assign left boundary of the grid
+  function moveLeft() {
+    undraw();
+    const isAtLeftEdge = current.some(
+      index => (currentPosition + index) % width === 0
+    );
+
+    if (!isAtLeftEdge) currentPosition -= 1;
+
+    if (
+      current.some(index =>
+        squares[currentPosition + index].classList.contains("taken")
+      )
+    ) {
+      currentPosition += 1;
+    }
+    draw();
   }
 });
