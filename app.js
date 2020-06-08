@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const startBtn = document.querySelector('#start-button');
   const width = 10;
   const height = 10;
+  let nextRandom = 0;
 
   // Tetrominoes
   // Tutorial used width here, but I find it to be confusing as it actually is setting the column depth aka the height of the tetromino piece. I actually don't think it makes things nay more clear, so I stopped using it. May clean up later, or revert to height if it comes up later.
@@ -94,7 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
       rotate();
     }
   }
-  document.addEventListener('keydown', control);
+  document.addEventListener('keyup', control);
 
   // Move down function
   function moveDown() {
@@ -115,10 +116,14 @@ document.addEventListener('DOMContentLoaded', () => {
         squares[currentPosition + index].classList.add('taken')
       );
       // Start a new Tetromino falling
-      random = Math.floor(Math.random() * theTetrominoes.length);
+      random = nextRandom;
+      // console.log('random :', random);
+      nextRandom = Math.floor(Math.random() * theTetrominoes.length);
+      // console.log('next random: ', nextRandom);
       current = theTetrominoes[random][currentRotation];
       currentPosition = 4;
       draw();
+      displayShape();
     }
   }
 
@@ -163,11 +168,45 @@ document.addEventListener('DOMContentLoaded', () => {
   // Tetromino Rotation
   function rotate() {
     undraw();
-    currentRotation++;
-    if (currentRotation === current.length) {
-      currentRotation = 0;
-    }
+    // I like this better then their version
+    currentRotation = (currentRotation + 1) % current.length;
+    // currentRotation++;
+    // if (currentRotation === current.length) {
+    //   currentRotation = 0;
+    // }
     current = theTetrominoes[random][currentRotation];
     draw();
+  }
+
+  // Show up-next Tetromino in mini-grid
+  const displaySquares = document.querySelectorAll('.mini-grid div');
+  // console.log(displaySquares);
+  const displayWidth = 4;
+  let displayIndex = 0;
+
+  // The tetrominos without Rotations (first position)
+  const upNextTetrominoes = [
+    // Why wasn't this working?
+    // lTetromino[0],
+    // zTetromino[0],
+    // oTetromino[0],
+    // tTetromino[0],
+    // iTetromino[0],
+    [1, displayWidth + 1, displayWidth * 2 + 1, 2], //lTetromino
+    [0, displayWidth, displayWidth + 1, displayWidth * 2 + 1], //zTetromino
+    [1, displayWidth, displayWidth + 1, displayWidth + 2], //tTetromino
+    [0, 1, displayWidth, displayWidth + 1], //oTetromino
+    [1, displayWidth + 1, displayWidth * 2 + 1, displayWidth * 3 + 1], //iTetromino
+  ];
+
+  // Display the shape in the mini-grid display
+  function displayShape() {
+    // remove tetromino from the grid
+    displaySquares.forEach((square) => {
+      square.classList.remove('tetromino');
+    });
+    upNextTetrominoes[nextRandom].forEach((index) => {
+      displaySquares[displayIndex + index].classList.add('tetromino');
+    });
   }
 });
